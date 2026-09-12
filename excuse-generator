@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Department of Excuses</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#e7ddc0;
+    --paper-2:#ddd0ab;
+    --ink:#2b2621;
+    --ink-soft:#5a4f42;
+    --stamp-red:#a8362a;
+    --stamp-red-glow:rgba(168,54,42,.25);
+    --gold:#8f6a24;
+    --teal:#2f4f4a;
+    --hole:#0000;
+    --hole-bg:#3a352e;
+    --shadow: rgba(30,25,15,.35);
+    --field-bg: rgba(0,0,0,.035);
+  }
+  [data-theme="night"]{
+    --paper:#211d17;
+    --paper-2:#2a251d;
+    --ink:#ecdfc0;
+    --ink-soft:#b8a988;
+    --stamp-red:#d9584a;
+    --stamp-red-glow:rgba(217,88,74,.3);
+    --gold:#d3ac5a;
+    --teal:#7fb3ab;
+    --hole-bg:#100e0a;
+    --shadow: rgba(0,0,0,.6);
+    --field-bg: rgba(255,255,255,.04);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: radial-gradient(ellipse at 50% -10%, #4a453c, #201d18 70%);
+    font-family:'Courier Prime', monospace;
+    color:var(--ink);
+    padding:40px 16px;
+    overflow-x:hidden;
+    transition: background .4s ease;
+  }
+  .desk{
+    position:relative;
+    width:min(480px, 92vw);
+  }
+  .carbon{
+    position:absolute;
+    inset:0;
+    background:var(--paper-2);
+    border:1px solid rgba(0,0,0,.15);
+  }
+  .carbon-2{ transform: rotate(3.5deg) translateY(6px); z-index:1; opacity:.7;}
+  .carbon-1{ transform: rotate(-2.2deg) translateY(3px); z-index:2; opacity:.85;}
+
+  .form-sheet{
+    position:relative;
+    z-index:3;
+    background:var(--paper);
+    padding:34px 30px 24px;
+    box-shadow: 0 24px 50px -12px var(--shadow), 0 2px 0 rgba(0,0,0,.1);
+    border:1px solid rgba(0,0,0,.12);
+    background-image:
+      repeating-linear-gradient(transparent 0 27px, rgba(0,0,0,.025) 27px 28px);
+    transition: background .4s ease, color .4s ease;
+  }
+  .feed-holes{
+    position:absolute;
+    top:0; bottom:0;
+    width:22px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-evenly;
+    align-items:center;
+  }
+  .feed-holes.left{ left:-11px; }
+  .feed-holes.right{ right:-11px; }
+  .feed-holes span{
+    width:9px; height:9px; border-radius:50%;
+    background:var(--hole-bg);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.6);
+  }
+
+  header{ text-align:center; margin-bottom:22px; position:relative;}
+  .seal{
+    width:64px; height:64px;
+    margin:0 auto 10px;
+    border-radius:50%;
+    border:2px solid var(--teal);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Arvo', serif; font-weight:700; font-size:10px;
+    color:var(--teal);
+    letter-spacing:.5px;
+    cursor:pointer;
+    user-select:none;
+    transition: transform .15s ease;
+    position:relative;
+  }
+  .seal:active{ transform: scale(.92) rotate(-4deg); }
+  .seal::before{
+    content:"";
+    position:absolute; inset:5px;
+    border:1px dashed var(--teal);
+    border-radius:50%;
+    opacity:.6;
+  }
+  h1{
+    font-family:'Arvo', serif;
+    font-size: 21px;
+    margin:0 0 6px;
+    letter-spacing:.5px;
+  }
+  .case-no{
+    font-size:12px;
+    color:var(--ink-soft);
+    letter-spacing:1px;
+  }
+  .case-no span{ color:var(--stamp-red); font-weight:700; }
+
+  .field{ margin-bottom:18px; }
+  label{
+    display:block;
+    font-size:11px;
+    letter-spacing:1.2px;
+    color:var(--ink-soft);
+    margin-bottom:7px;
+    font-family:'Arvo', serif;
+  }
+  .chips{ display:flex; gap:8px; flex-wrap:wrap; }
+  .chips button{
+    font-family:'Courier Prime', monospace;
+    font-size:12.5px;
+    padding:7px 12px;
+    background:transparent;
+    border:1px solid var(--ink-soft);
+    color:var(--ink);
+    cursor:pointer;
+    letter-spacing:.4px;
+    transition: all .15s ease;
+  }
+  .chips button.active{
+    background:var(--teal);
+    border-color:var(--teal);
+    color:var(--paper);
+  }
+  .chips button:hover:not(.active){ border-color:var(--ink); }
+
+  .excuse-box{
+    min-height:78px;
+    background:var(--field-bg);
+    border:1px solid var(--ink-soft);
+    padding:14px;
+    font-size:15px;
+    line-height:1.55;
+    display:flex;
+    align-items:flex-start;
+  }
+  .excuse-box span#excuseText{ white-space:pre-wrap; }
+  .cursor{
+    display:inline-block;
+    animation: blink 1s step-start infinite;
+    color: var(--stamp-red);
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .actions{ display:flex; gap:10px; margin-bottom:22px; }
+  button{ font-family:'Courier Prime', monospace; }
+  #generateBtn, #copyBtn{
+    flex:1;
+    padding:12px 10px;
+    font-size:12.5px;
+    letter-spacing:1px;
+    cursor:pointer;
+    border:none;
+  }
+  #generateBtn{
+    background:var(--ink);
+    color:var(--paper);
+    font-weight:700;
+  }
+  #generateBtn:hover{ background:var(--stamp-red); }
+  #copyBtn{
+    background:transparent;
+    border:1px solid var(--ink-soft);
+    color:var(--ink);
+  }
+  #copyBtn:hover{ border-color:var(--ink); }
+  #copyBtn.copied{ border-color:var(--teal); color:var(--teal); }
+
+  .verdict-row{ position:relative; margin-bottom:20px; }
+  .stamps{ display:flex; gap:10px; }
+  .stamp-btn{
+    flex:1;
+    padding:10px;
+    font-size:11.5px;
+    letter-spacing:1.4px;
+    font-weight:700;
+    background:transparent;
+    cursor:pointer;
+    font-family:'Arvo', serif;
+  }
+  .stamp-btn.approve{ border:2px solid var(--teal); color:var(--teal); }
+  .stamp-btn.approve:hover{ background:var(--teal); color:var(--paper); }
+  .stamp-btn.deny{ border:2px solid var(--stamp-red); color:var(--stamp-red); }
+  .stamp-btn.deny:hover{ background:var(--stamp-red); color:var(--paper); }
+
+  .stamp-mark{
+    position:absolute;
+    top:-46px;
+    right:6px;
+    font-family:'Arvo', serif;
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:2px;
+    padding:6px 12px;
+    border:3px solid var(--stamp-red);
+    color:var(--stamp-red);
+    border-radius:4px;
+    opacity:0;
+    transform: scale(2.2) rotate(-18deg);
+    pointer-events:none;
+    text-shadow: 0 0 1px var(--stamp-red);
+  }
+  .stamp-mark.deny-mark{ border-color: var(--ink-soft); color: var(--ink-soft); }
+  .stamp-mark.show{
+    animation: stampIn .35s cubic-bezier(.2,.9,.3,1.2) forwards;
+  }
+  @keyframes stampIn{
+    0%{ opacity:0; transform: scale(2.4) rotate(-18deg); }
+    60%{ opacity:1; transform: scale(.92) rotate(-10deg); }
+    100%{ opacity:1; transform: scale(1) rotate(-10deg); }
+  }
+
+  footer{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding-top:16px;
+    border-top:1px dashed var(--ink-soft);
+    font-size:11px;
+    color:var(--ink-soft);
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  footer button{
+    background:transparent;
+    border:none;
+    color:var(--ink-soft);
+    font-size:11px;
+    letter-spacing:.8px;
+    cursor:pointer;
+    text-decoration:underline;
+    padding:2px 0;
+  }
+  footer button:hover{ color:var(--ink); }
+
+  .drawer{
+    position:relative;
+    z-index:3;
+    max-height:0;
+    overflow:hidden;
+    background:var(--paper-2);
+    border:1px solid rgba(0,0,0,.12);
+    border-top:none;
+    transition: max-height .35s ease;
+  }
+  .drawer.open{ max-height:220px; overflow-y:auto; }
+  .drawer-inner{ padding:14px 30px 18px; }
+  .drawer-item{
+    font-size:12px;
+    padding:7px 0;
+    border-bottom:1px solid rgba(0,0,0,.08);
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    color: var(--ink);
+  }
+  .drawer-item .tag{
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .tag.approved{ color:var(--teal); }
+  .tag.denied{ color:var(--stamp-red); }
+  .drawer-empty{ font-size:12px; color:var(--ink-soft); padding:8px 0; }
+
+  .secret-banner{
+    text-align:center;
+    font-size:10.5px;
+    letter-spacing:1.5px;
+    color:var(--stamp-red);
+    margin-top:-10px;
+    margin-bottom:14px;
+    opacity:0;
+    height:0;
+    overflow:hidden;
+  }
+  .secret-banner.show{ opacity:1; height:auto; margin-bottom:14px; animation: flicker 1.4s ease infinite; }
+  @keyframes flicker{ 0%,100%{opacity:1;} 50%{opacity:.55;} }
+
+  @media (prefers-reduced-motion: reduce){
+    .cursor, .secret-banner.show{ animation:none; }
+    .stamp-mark.show{ animation:none; opacity:1; transform:scale(1) rotate(-10deg); }
+  }
+
+  button:focus-visible, .seal:focus-visible{
+    outline:2px solid var(--stamp-red);
+    outline-offset:2px;
+  }
+</style>
+</head>
+<body data-theme="day">
+<div class="desk">
+  <div class="carbon carbon-2"></div>
+  <div class="carbon carbon-1"></div>
+  <div class="form-sheet" id="sheet">
+    <div class="feed-holes left" id="holesLeft"></div>
+    <div class="feed-holes right" id="holesRight"></div>
+
+    <header>
+      <div class="seal" id="seal" tabindex="0" role="button" aria-label="Official seal, click for a surprise">DEPT<br>OF<br>EXC.</div>
+      <h1>Department of Excuses</h1>
+      <div class="case-no">CASE NO. <span id="caseNo">0001</span></div>
+    </header>
+
+    <div class="secret-banner" id="secretBanner">⚠ CLASSIFIED CATEGORY UNLOCKED ⚠</div>
+
+    <div class="field category-field">
+      <label>Category of delinquency</label>
+      <div class="chips" id="chips">
+        <button data-cat="work" class="active">Work</button>
+        <button data-cat="school">School</button>
+        <button data-cat="social">Social</button>
+        <button data-cat="family">Family</button>
+      </div>
+    </div>
+
+    <div class="field excuse-field">
+      <label>Official excuse</label>
+      <div class="excuse-box">
+        <span id="excuseText">Press "Generate Excuse" to file your first report.</span><span class="cursor" id="cursor">▌</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="generateBtn">Generate Excuse</button>
+      <button id="copyBtn">Copy</button>
+    </div>
+
+    <div class="verdict-row">
+      <label>Officer's verdict</label>
+      <div class="stamps">
+        <button id="approveBtn" class="stamp-btn approve">Approve</button>
+        <button id="denyBtn" class="stamp-btn deny">Deny</button>
+      </div>
+      <div class="stamp-mark" id="stampMark">APPROVED</div>
+    </div>
+
+    <footer>
+      <div>Filed today: <span id="filedCount">0</span></div>
+      <button id="drawerBtn">Case file ▾</button>
+      <button id="feedbackBtn">Feedback</button>
+    </footer>
+  </div>
+
+  <div class="drawer" id="drawer">
+    <div class="drawer-inner" id="drawerInner">
+      <div class="drawer-empty">No excuses on file yet.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const EXCUSES = {
+    work: [
+      "My cat walked across my keyboard and accidentally submitted the report to the CEO's spam folder.",
+      "I was quarantined by IT for 'suspicious enthusiasm' about the quarterly numbers.",
+      "My standing desk stood up without me.",
+      "I got trapped in a meeting about scheduling another meeting.",
+      "The office coffee machine achieved sentience and demanded a day off, so I covered for it.",
+      "My out-of-office reply is currently out of office.",
+      "I was mid-way through aligning my chakras with the org chart.",
+      "A pigeon took my parking spot and I had to negotiate.",
+      "I accidentally replied-all to a company-wide email and have been in hiding since.",
+      "My chair rolled into a different tax bracket.",
+      "I was busy pretending to understand the new software update.",
+      "The printer and I had a difference of opinion, and it won."
+    ],
+    school: [
+      "My dog ate my homework, then felt guilty and wrote an apology essay instead.",
+      "I was abducted by a group project that never met once.",
+      "My calculator ran out of motivation, not batteries.",
+      "I fell into a Wikipedia rabbit hole researching the assigned topic and never climbed out.",
+      "The library's wifi asked for a favor in exchange for connecting me.",
+      "I was busy explaining to my pencil why it needed to try harder.",
+      "My notes achieved sentience and refused to be studied.",
+      "I mistook the syllabus for a suggestion.",
+      "A substitute reality briefly replaced my due date with next week.",
+      "My alarm clock and I are no longer on speaking terms.",
+      "I was training for the academic decathlon of finding my other shoe.",
+      "The assignment fell into the gap between my desk and my ambition."
+    ],
+    social: [
+      "I was rehearsing how to leave early, which took the entire evening.",
+      "My reflection told me I looked tired, so I stayed in to rest its feelings.",
+      "I got emotionally invested in a stranger's group chat and couldn't step away.",
+      "My houseplants needed emotional support during a thunderstorm.",
+      "I was in the middle of a very serious staring contest with my to-do list.",
+      "My phone battery and my motivation died at the same time.",
+      "I promised my couch I'd keep it company tonight.",
+      "I got lost practicing the route to your house, which I've taken forty times.",
+      "A sudden wave of introvert weather rolled in.",
+      "I was busy overthinking the RSVP for way too long.",
+      "My socks didn't match and I refused to be seen in public like that.",
+      "I accidentally started reorganizing my bookshelf by mood instead of getting ready."
+    ],
+    family: [
+      "I was assigned emergency remote control negotiations.",
+      "The family group chat required my full, undivided attention for three hours.",
+      "I got recruited into a surprise furniture rearrangement operation.",
+      "My relative's story had no end in sight and I was legally obligated to listen.",
+      "I was appointed chief taste-tester for dinner and the role had no clear finish time.",
+      "The dog needed a witness for his very important nap.",
+      "I was mediating a dispute over the thermostat that has lasted generations.",
+      "Someone said 'quick errand' and it was, in fact, not quick.",
+      "I got drafted into a photo shoot that required seventeen retakes.",
+      "The family board game turned into a four-hour diplomatic summit.",
+      "I was on standby in case anyone needed a second opinion on paint swatches.",
+      "My nephew needed a co-pilot for an extremely important pillow fort."
+    ],
+    secret: [
+      "I was consulting with a time traveler about whether today even counts.",
+      "My shadow filed a separate, conflicting excuse and we're still in arbitration.",
+      "I was recalibrating the moon's schedule and it ran long.",
+      "A council of houseplants voted to delay me indefinitely.",
+      "I got stuck explaining Wi-Fi to a raccoon who seemed unusually invested.",
+      "My alibi is currently classified above my own pay grade.",
+      "I was busy proving P ≠ NP to a very skeptical goldfish.",
+      "The excuse generator generated an excuse for generating this excuse."
+    ]
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const excuseText = $('excuseText');
+  const cursor = $('cursor');
+  const generateBtn = $('generateBtn');
+  const copyBtn = $('copyBtn');
+  const approveBtn = $('approveBtn');
+  const denyBtn = $('denyBtn');
+  const stampMark = $('stampMark');
+  const caseNoEl = $('caseNo');
+  const filedCountEl = $('filedCount');
+  const drawerBtn = $('drawerBtn');
+  const drawer = $('drawer');
+  const drawerInner = $('drawerInner');
+  const feedbackBtn = $('feedbackBtn');
+  const chips = document.querySelectorAll('.chips button');
+  const seal = $('seal');
+  const secretBanner = $('secretBanner');
+  const body = document.body;
+
+  let state = JSON.parse(localStorage.getItem('excuseState') || '{}');
+  state.caseNo = state.caseNo || 1;
+  state.filed = state.filed || 0;
+  state.history = state.history || [];
+  state.theme = state.theme || 'day';
+  state.secretUnlocked = state.secretUnlocked || false;
+
+  let category = 'work';
+  let currentExcuse = '';
+  let typing = false;
+  let sealClicks = 0;
+
+  function save(){
+    localStorage.setItem('excuseState', JSON.stringify(state));
+  }
+
+  function pad(n){ return String(n).padStart(4,'0'); }
+
+  function renderTopline(){
+    caseNoEl.textContent = pad(state.caseNo);
+    filedCountEl.textContent = state.filed;
+    body.setAttribute('data-theme', state.theme);
+    if(state.secretUnlocked){
+      secretBanner.classList.add('show');
+      if(!document.querySelector('[data-cat="secret"]')){
+        const b = document.createElement('button');
+        b.dataset.cat = 'secret';
+        b.textContent = 'Classified';
+        document.getElementById('chips').appendChild(b);
+        b.addEventListener('click', () => selectCategory('secret', b));
+      }
+    }
+  }
+
+  function renderDrawer(){
+    if(state.history.length === 0){
+      drawerInner.innerHTML = '<div class="drawer-empty">No excuses on file yet.</div>';
+      return;
+    }
+    drawerInner.innerHTML = state.history.slice(0,8).map(item => {
+      const tagClass = item.verdict === 'APPROVED' ? 'approved' : 'denied';
+      return `<div class="drawer-item"><span>#${pad(item.case)} — ${escapeHtml(item.text)}</span><span class="tag ${tagClass}">${item.verdict}</span></div>`;
+    }).join('');
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // --- Audio (synthesized, no external files) ---
+  let audioCtx = null;
+  function ctx(){
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtx;
+  }
+  function clack(){
+    try{
+      const c = ctx();
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = 'square';
+      o.frequency.value = 900 + Math.random()*400;
+      g.gain.value = 0.04;
+      o.connect(g).connect(c.destination);
+      const t = c.currentTime;
+      g.gain.setValueAtTime(0.05, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+      o.start(t);
+      o.stop(t + 0.03);
+    }catch(e){}
+  }
+  function thud(){
+    try{
+      const c = ctx();
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(160, c.currentTime);
+      o.frequency.exponentialRampToValueAtTime(45, c.currentTime + 0.18);
+      g.gain.setValueAtTime(0.25, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.22);
+      o.connect(g).connect(c.destination);
+      o.start();
+      o.stop(c.currentTime + 0.22);
+    }catch(e){}
+  }
+  function ding(){
+    try{
+      const c = ctx();
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = 'triangle';
+      o.frequency.value = 1400;
+      g.gain.setValueAtTime(0.06, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.25);
+      o.connect(g).connect(c.destination);
+      o.start();
+      o.stop(c.currentTime + 0.25);
+    }catch(e){}
+  }
+
+  // --- Feed holes ---
+  function buildHoles(){
+    [$('holesLeft'), $('holesRight')].forEach(col => {
+      col.innerHTML = '';
+      for(let i=0;i<11;i++){
+        const s = document.createElement('span');
+        col.appendChild(s);
+      }
+    });
+  }
+  buildHoles();
+
+  // --- Category selection ---
+  function selectCategory(cat, btnEl){
+    category = cat;
+    document.querySelectorAll('.chips button').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+  }
+  chips.forEach(btn => btn.addEventListener('click', () => selectCategory(btn.dataset.cat, btn)));
+
+  // --- Typewriter generate ---
+  function typeText(text){
+    return new Promise(resolve => {
+      typing = true;
+      excuseText.textContent = '';
+      let i = 0;
+      function step(){
+        if(i < text.length){
+          excuseText.textContent += text[i];
+          if(text[i] !== ' ') clack();
+          i++;
+          setTimeout(step, 18 + Math.random()*26);
+        } else {
+          typing = false;
+          resolve();
+        }
+      }
+      step();
+    });
+  }
+
+  async function generate(){
+    if(typing) return;
+    stampMark.classList.remove('show');
+    const pool = EXCUSES[category] || EXCUSES.work;
+    let next = pool[Math.floor(Math.random()*pool.length)];
+    if(next === currentExcuse && pool.length > 1){
+      next = pool[(pool.indexOf(next)+1) % pool.length];
+    }
+    currentExcuse = next;
+    state.caseNo++;
+    renderTopline();
+    save();
+    await typeText(next);
+  }
+  generateBtn.addEventListener('click', generate);
+
+  // --- Copy ---
+  copyBtn.addEventListener('click', async () => {
+    if(!currentExcuse) return;
+    try{
+      await navigator.clipboard.writeText(currentExcuse);
+      copyBtn.textContent = 'Copied ✓';
+      copyBtn.classList.add('copied');
+      setTimeout(() => { copyBtn.textContent = 'Copy'; copyBtn.classList.remove('copied'); }, 1400);
+    }catch(e){
+      copyBtn.textContent = 'Select & copy manually';
+      setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1600);
+    }
+  });
+
+  // --- Verdict stamps ---
+  function stamp(verdict){
+    if(!currentExcuse || typing) return;
+    thud();
+    stampMark.textContent = verdict;
+    stampMark.classList.toggle('deny-mark', verdict === 'DENIED');
+    stampMark.classList.remove('show');
+    void stampMark.offsetWidth;
+    stampMark.classList.add('show');
+
+    state.filed++;
+    state.history.unshift({ case: state.caseNo, text: currentExcuse, verdict });
+    state.history = state.history.slice(0, 20);
+    renderTopline();
+    renderDrawer();
+    save();
+  }
+  approveBtn.addEventListener('click', () => stamp('APPROVED'));
+  denyBtn.addEventListener('click', () => stamp('DENIED'));
+
+  // --- Drawer toggle ---
+  drawerBtn.addEventListener('click', () => {
+    drawer.classList.toggle('open');
+    drawerBtn.textContent = drawer.classList.contains('open') ? 'Case file ▴' : 'Case file ▾';
+  });
+
+  // --- Feedback (totally legitimate) ---
+  feedbackBtn.addEventListener('click', () => {
+    window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank', 'noopener');
+  });
+
+  // --- Easter egg: click the seal 5 times ---
+  seal.addEventListener('click', () => {
+    sealClicks++;
+    seal.style.transform = 'scale(0.9) rotate(-6deg)';
+    setTimeout(() => { seal.style.transform = ''; }, 150);
+    if(sealClicks >= 5 && !state.secretUnlocked){
+      state.secretUnlocked = true;
+      ding();
+      renderTopline();
+      save();
+    }
+  });
+  seal.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); seal.click(); }
+  });
+
+  // --- Init ---
+  renderTopline();
+  renderDrawer();
+})();
+</script>
+</body>
+</html>
